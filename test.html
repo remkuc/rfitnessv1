@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendrier avec Stockage Local</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    #calendar {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <button id="showCalendarBtn">Afficher le Calendrier</button>
+  <div id="calendar"></div>
+
+  <script>
+    // Récupération des données du calendrier depuis le stockage local
+    let savedEvents = JSON.parse(localStorage.getItem('calendarEvents')) || [];
+
+    $(document).ready(function() {
+      // Initialisation du calendrier
+      let calendar = $('#calendar').fullCalendar({
+        // Configuration du calendrier (peut être ajustée selon vos besoins)
+        dayClick: function(date, jsEvent, view) {
+          // Affichez la date du clic dans la console (vous pouvez également afficher ces informations à un autre endroit sur la page)
+          console.log('Date cliquée:', date.format());
+
+          // Ici, vous pouvez ajouter des informations spécifiques à cette date
+          // Par exemple, vous pouvez afficher ces informations dans une boîte de dialogue ou un autre élément sur la page
+          // Pour cet exemple, nous affichons simplement les informations de la date dans la console
+        }
+      });
+
+      // Restaurez les événements du stockage local lors du chargement de la page
+      calendar.fullCalendar('addEventSource', savedEvents);
+
+      // Ajoutez un événement pour le clic sur le bouton "Afficher le Calendrier"
+      $('#showCalendarBtn').on('click', function() {
+        let event = {
+          title: 'Nouvel événement',
+          start: moment().format('YYYY-MM-DDTHH:mm:ss'),
+        };
+
+        calendar.fullCalendar('renderEvent', event);
+
+        // Ajoutez l'événement au tableau des événements
+        savedEvents.push(event);
+
+        // Sauvegardez les événements dans le stockage local
+        saveEventsToLocalStorage(savedEvents);
+      });
+
+      // Fonction pour sauvegarder les événements du calendrier dans le stockage local
+      function saveEventsToLocalStorage(events) {
+        localStorage.setItem('calendarEvents', JSON.stringify(events));
+      }
+
+      // Ajoutez un listener pour stocker les événements dans le stockage local lorsque la page est fermée
+      window.addEventListener('beforeunload', function() {
+        localStorage.setItem('calendarEvents', JSON.stringify(savedEvents));
+      });
+    });
+  </script>
+</body>
+</html>

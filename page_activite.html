@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Activité</title>
+  <style>
+body {
+  background-color: #333;
+  text-align: center; 
+}
+
+h1 {
+  color: white;
+}
+
+button {
+  margin: 10px; 
+}
+
+
+  </style>
+</head>
+<body>
+  <h1>Votre Activité</h1>
+
+
+  <button id="configure-button">Configurer la map</button>
+  <button id="voir_activite" >Voir mon activitée</button>
+
+  <script>
+    
+    document.getElementById("configure-button").addEventListener("click", function() {
+    window.location.href = "bientot_dispo.html";
+  });
+    document.getElementById("voir_activite").addEventListener("click", function() {
+    window.location.href = "test_calendrier.html";
+      
+  });
+    
+  </script>
+</body>
+</html>

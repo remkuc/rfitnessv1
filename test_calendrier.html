@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendrier avec Stockage Local</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+      background-color: #333;
+      color: white;
+    }
+    h1{
+      font-size: 3em;
+    }
+    #calendar {
+      max-width: 600px;
+      margin: 0 auto;
+      
+    }
+    #showCalendarBtn{
+      margin-bottom: 3em;
+    }
+  </style>
+</head>
+<body>
+  <h1>Votre activitée</h1>
+  <button id="showCalendarBtn">Début/fin de la séance</button>
+  <div id="calendar"></div>
+
+  <script>
+
+    let savedEvents = JSON.parse(localStorage.getItem('calendarEvents')) || [];
+
+    $(document).ready(function() {
+      
+      let calendar = $('#calendar').fullCalendar({
+        dayClick: function(date, jsEvent, view) {
+          console.log('Date cliquée:', date.format());
+
+          
+          $('.fc-day').css('z-index', 'auto');
+
+       
+          let clickedDay = $(this);
+
+          
+          clickedDay.css('z-index', '1');
+
+         
+        }
+      });
+
+      calendar.fullCalendar('addEventSource', savedEvents);
+
+      $('#showCalendarBtn').on('click', function() {
+        let event = {
+          title: 'Nouvel événement',
+          start: moment().format('YYYY-MM-DDTHH:mm:ss'),
+        };
+
+        calendar.fullCalendar('renderEvent', event);
+
+        savedEvents.push(event);
+        
+        saveEventsToLocalStorage(savedEvents);
+      });
+
+      function saveEventsToLocalStorage(events) {
+        localStorage.setItem('calendarEvents', JSON.stringify(events));
+      }
+
+      window.addEventListener('beforeunload', function() {
+        localStorage.setItem('calendarEvents', JSON.stringify(savedEvents));
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entraînement</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 400px;
+            margin: 0 auto; 
+            background-color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 3.5em;
+        }
+        button {
+            display: block;
+            margin: 20px auto;
+           
+        }
+        .muscle-button {
+            width: 100px; /* Définissez la largeur que vous souhaitez pour les boutons */
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Entraînement</h1>
+
+    <button onclick="afficherExercices('dos')">Dos</button>
+    <button onclick="afficherExercices('pecs')">Pecs</button>
+    <button onclick="afficherExercices('jambes')">Jambes</button>
+
+    <div id="exercices"></div>
+
+    <script>
+        var db;
+
+        // Ouvrir la base de données indexedDB
+        var request = indexedDB.open('exercicesDB', 1);
+
+        request.onupgradeneeded = function(event) {
+            db = event.target.result;
+            // Créer un objet de stockage (table) pour les exercices
+            db.createObjectStore('exercices', { keyPath: 'muscle' });
+        };
+
+        request.onsuccess = function(event) {
+            db = event.target.result;
+        };
+
+        function afficherExercices(muscle) {
+            var exercices = {
+                'dos': ['Tirage vertical', 'Rowing', 'Pull-ups'],
+                'pecs': ['Push-ups', 'Développé couché', 'Butterfly'],
+                'jambes': ['Squats', 'Fentes', 'Presse à cuisses']
+            };
+
+            var exercicesMuscle = exercices[muscle];
+            var exercicesDiv = document.getElementById('exercices');
+            exercicesDiv.innerHTML = '<h2>Exercices pour ' + muscle + '</h2><ul>';
+
+            for (var i = 0; i < exercicesMuscle.length; i++) {
+                exercicesDiv.innerHTML += '<li>' + exercicesMuscle[i] +
+                    ' - <input type="number" id="reps_' + muscle + '_' + i + '" placeholder="Répétitions"> reps - <input type="number" id="poids_' + muscle + '_' + i + '" placeholder="Poids"> kg</li>';
+            }
+
+            exercicesDiv.innerHTML += '</ul>';
+
+            // Ajout du bouton Sauvegarder
+            exercicesDiv.innerHTML += '<button onclick="sauvegarderExercices(\'' + muscle + '\')">Sauvegarder</button>';
+        }
+
+        function sauvegarderExercices(muscle) {
+            var exercicesMuscle = document.querySelectorAll('#exercices li');
+            var exercicesData = [];
+
+            exercicesMuscle.forEach(function(exercice, index) {
+                var repetitions = document.getElementById('reps_' + muscle + '_' + index).value;
+                var poids = document.getElementById('poids_' + muscle + '_' + index).value;
+
+                if (repetitions && poids) {
+                    exercicesData.push({
+                        exercice: exercice.textContent.split(' - ')[0],
+                        repetitions: repetitions,
+                        poids: poids
+                    });
+                }
+            });
+
+            // Ouvrir une transaction pour écrire dans la base de données indexedDB
+            var transaction = db.transaction(['exercices'], 'readwrite');
+            var objectStore = transaction.objectStore('exercices');
+
+            // Stocker les données d'exercices dans indexedDB
+            objectStore.put({ muscle: muscle, data: exercicesData });
+
+            alert('Données sauvegardées pour ' + muscle + ' : ' + JSON.stringify(exercicesData));
+        }
+    </script>
+
+</body>
+
+</html>
